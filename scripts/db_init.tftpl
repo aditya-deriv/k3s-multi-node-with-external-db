@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -ex
+
+# Install essential packages
+sudo apt-get update && sudo apt-get install -y git curl telnet
+
+# Add Entries in /etc/hosts
+sudo tee -a /etc/hosts > /dev/null <<EOT
+${k3s_master_1_private_ip} k3s-master-1
+${k3s_master_2_private_ip} k3s-master-2
+${k3s_worker_1_private_ip} k3s-worker-1
+${k3s_worker_2_private_ip} k3s-worker-2
+${k3s_lb_private_ip}       k3s-lb
+${k3s_db_private_ip}       k3s-db
+EOT
+
+# Install ETCD as DB
+sudo apt-get install -y etcd
+
+# Configure ETCD as external DB
+sudo cp /etc/default/etcd /etc/default/etcd.bkp
+sudo tee -a /etc/default/etcd > /dev/null <<EOT
+ETCD_LISTEN_PEER_URLS="http://${k3s_db_private_ip}:2380"
+ETCD_LISTEN_CLIENT_URLS="http://${k3s_db_private_ip}:2379"
+ETCD_ADVERTISE_CLIENT_URLS="http://${k3s_db_private_ip}:2379"
+EOT
+
+# Restart ETCD and enable it for reboot
+sudo systemctl restart etcd.service
+sudo systemctl enable etcd.service
