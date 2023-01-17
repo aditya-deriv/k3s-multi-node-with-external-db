@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -ex
+
+# Install essential packages
+sudo apt-get update && sudo apt-get install -y git curl telnet
+
+# Add Entries in /etc/hosts
+sudo tee -a /etc/hosts > /dev/null <<EOT
+${k3s_master_1_private_ip} k3s-master-1
+${k3s_master_2_private_ip} k3s-master-2
+${k3s_worker_1_private_ip} k3s-worker-1
+${k3s_worker_2_private_ip} k3s-worker-2
+${k3s_lb_private_ip}       k3s-lb
+${k3s_db_private_ip}       k3s-db
+EOT
+
+# Configure k3s worker nodes
+curl -sfL https://get.k3s.io | K3S_URL=https://${k3s_lb_node_name}:6443 K3S_TOKEN=${k3s_master_nodes_token} sh -
+
+# Enable k3s-agent service
+sudo systemctl enable k3s-agent.service
