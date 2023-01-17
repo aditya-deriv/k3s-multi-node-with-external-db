@@ -7,7 +7,7 @@ This repo contains the terraform configuration files to setup k3s cluster with b
 - k3s HAproxy load balancer node (No. of nodes: 1)
 
 ## Pre-requisites:
-This setup assumes following pre-requisies:
+This setup assumes the following pre-requisites:
 - AWS account (with Access key ID & Secret access key)
 - `terraform` to be installed from the machine where this is being configured
 
@@ -39,7 +39,7 @@ terraform validate
 ```
 terraform plan
 ```
-- If dry run looks good, run following command to setup & configure the cluster
+- If dry run looks good, run the following command to setup & configure the cluster
 ```
 terraform apply --auto-approve
 ```
@@ -55,7 +55,7 @@ terraform apply --auto-approve
 
 ## Destroy the setup:
 > **Warning**
-> This is a destructive command. So before you execute it, please make sure you are destroying only required resources and it is not impacting any other resources. You may use following command to perform a dry run to see the resources being deleted are the ones which are intended to be.
+> This is a destructive command. So before its execution, please make sure you are destroying only required resources and it is not impacting any other resources. You may use following command to perform a dry run to see the resources being deleted are the ones which are intended to be.
 >```
 >terraform destroy
 >```
@@ -65,6 +65,6 @@ terraform destroy --auto-approve
 ```
 
 ## Troubleshoot
-- In the event the installation fails or remains stuck at Null resource creation stage, please make sure the private key configured has appropriate permissions and is named as `id_rsa`
+- In the event the installation fails or remains stuck at Null resource creation stage, please make sure the private key configured has appropriate permissions, located inside present module directory and is named as `id_rsa`
 - Also, please make sure the public key used in `key.tf` file is exactly the one associated with the private key
 
