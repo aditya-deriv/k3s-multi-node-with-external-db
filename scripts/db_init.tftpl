@@ -2,7 +2,7 @@
 set -ex
 
 # Install essential packages
-sudo apt-get update && sudo apt-get install -y git curl telnet
+sudo apt-get update > /dev/null && sudo apt-get install -y git curl telnet > /dev/null
 
 # Add Entries in /etc/hosts
 sudo tee -a /etc/hosts > /dev/null <<EOT
