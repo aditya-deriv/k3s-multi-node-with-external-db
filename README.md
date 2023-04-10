@@ -1,15 +1,28 @@
 # k3s-multi-node-cluster-with-external-db
-This repo contains the terraform configuration files to setup k3s cluster with below nodes:
 
-- k3s master nodes (No. of nodes: 2)
-- k3s worker nodes (No. of nodes: 2)
-- k3s ETCD as external DB node (No. of nodes: 1)
-- k3s HAproxy load balancer node (No. of nodes: 1)
+## Overview:
+This repo contains the terraform configuration to setup k3s cluster with below nodes:
+- k3s master nodes (No. of nodes(s): 2)
+- k3s worker nodes (No. of nodes(s): 2)
+- k3s ETCD as external DB node (No. of nodes(s): 1)
+- k3s HAproxy load balancer node (No. of nodes(s): 1)
+- k3s Bastion node (No. of nodes(s): 1)
 
 ## Pre-requisites:
 This setup assumes the following pre-requisites:
 - AWS account (with Access key ID & Secret access key)
-- `terraform` to be installed from the machine where this is being configured
+- `terraform` utility to be installed from the machine where this is being configured
+
+## How it is being configured:
+This setup configures the cluster in a following manner:
+- Creates a deicated VPC
+- Creates a public & private subnet in that VPC
+- Creates IGW, NAT GW, route tables
+- Configure route table associations
+- Deploy the bastion host in public subnet
+- Deploy rest of the k3s nodes in private subnet (so they all can only be accesses from bastion host)
+- Setup the entire cluster
+- Copy the kubeconfig file from master node to bastion host (so you can directly login to bastion host and access the cluster from there)
 
 ## Steps to deploy & setup:
 - Configure AWS credentials using following command:
@@ -19,8 +32,9 @@ aws configure
 - Clone the repository to the local machine:
 ```
 git clone git@github.com:nazim-deriv/k3s-multi-node-with-external-db.git
+cd k3s-multi-node-with-external-db/
 ```
-- Generate SSH key pair inside the present directory (This is essential to configure the k3s cluster since it needs to perform `remote-exec` through TF)
+- Generate SSH key pair inside the present directory (This is essential to configure the k3s cluster since it is needed to access nodes & also to perform `remote-exec` on bastion)
 ```
 ssh-keygen -t rsa -b 4096
 ```
@@ -35,23 +49,37 @@ terraform init
 terraform fmt
 terraform validate
 ```
-- Perform the dry run
+- Perform the TF plan to confirm no issues
 ```
 terraform plan
 ```
-- If dry run looks good, run the following command to setup & configure the cluster
+- If the plan looks good, run the following command to setup & configure the cluster
 ```
 terraform apply --auto-approve
 ```
 
-## How it is being configured:
-- This TF configuration basically perform the following:
-  - Creates all required resources (SSH keys, Security groups & instances)
-  - Login to each of the nodes in following sequence and configure required setup on them:
-    - ETCD as external DB
-    - HAproxy load balancer
-    - Master nodes
-    - Worker nodes
+## Verify the deployment
+You can perform following to verify if the cluster is being setup and working as expected post successful TF execution
+- Add the `id_rsa` key to your SSH key identification
+```
+ssh-add id_rsa
+```
+- Login to bastion host using its public IP (The IP should be available in the output)
+```
+ssh -A admin@<public_ip>
+```
+- Bastion host should already have `kubectl` installed and cluster's `kubeconfig` file should also be available for you inside `/home/admin/.kube/config` directory
+- You can then execute any `kubectl` commands to interact with the cluster
+```
+kubectl get nodes
+kubectl get pods -A
+kubectl cluster-info
+```
+- Go ahead and try deploying the test nginx deployment on the cluster
+```
+kubectl create deploy nginx --image=nginx --replicas=6
+kubectl get pods -o wide
+```
 
 ## Destroy the setup:
 > **Warning**
@@ -65,6 +93,18 @@ terraform destroy --auto-approve
 ```
 
 ## Troubleshoot
-- In the event the installation fails or remains stuck at Null resource creation stage, please make sure the private key configured has appropriate permissions, located inside present module directory and is named as `id_rsa`
+- In the event the installation fails, please make sure the private key configured has appropriate permissions, located inside present module directory and is named as `id_rsa`
 - Also, please make sure the public key used in `key.tf` file is exactly the one associated with the private key
+- In case if there are any issues with the cluster, you can SSH to any of the k3s nodes from bastion host and check the respective services status as well as logs (cloud-init-output.log or service logs)
+
+## What next?
+At last, this setup is not perfect and there is a lot of room for further improvements. Listing out few of them as follows:
+- Cluster scalability
+- Appropriate Modules hierarchy & simplification
+- SSL implementation (cluster wide)
+- DB High availability implementation
+- Cluster external traffik
+- Replace ETCD with more robust DB (PostgreSQL for e.g.!)
+- Replace HAproxy with any other load balancer (Nginx for e.g.!)
+Please feel free to add more if you can think of any !
 

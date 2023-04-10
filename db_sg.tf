@@ -1,14 +1,14 @@
 resource "aws_security_group" "k3s-db-sg" {
   name        = "k3s-db-sg"
   description = "DB Node SG"
-  vpc_id      = data.aws_subnet.nodes.vpc_id
+  vpc_id      = aws_vpc.dedicated-vpc.id
 
   ingress {
-    description = "ssh"
+    description = "SSH from bastion"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["${data.http.public_ip.response_body}/32"]
+    cidr_blocks = [aws_subnet.public-subnet.cidr_block]
   }
 
   ingress {
@@ -16,7 +16,7 @@ resource "aws_security_group" "k3s-db-sg" {
     from_port   = 2379
     to_port     = 2380
     protocol    = "tcp"
-    cidr_blocks = [data.aws_subnet.nodes.cidr_block]
+    cidr_blocks = [aws_subnet.private-subnet.cidr_block]
   }
 
   ingress {
@@ -24,7 +24,7 @@ resource "aws_security_group" "k3s-db-sg" {
     from_port   = 4001
     to_port     = 4001
     protocol    = "tcp"
-    cidr_blocks = [data.aws_subnet.nodes.cidr_block]
+    cidr_blocks = [aws_subnet.private-subnet.cidr_block]
   }
 
   ingress {
@@ -32,7 +32,7 @@ resource "aws_security_group" "k3s-db-sg" {
     from_port   = -1
     to_port     = -1
     protocol    = "icmp"
-    cidr_blocks = ["${data.http.public_ip.response_body}/32"]
+    cidr_blocks = [aws_subnet.public-subnet.cidr_block]
   }
 
   egress {

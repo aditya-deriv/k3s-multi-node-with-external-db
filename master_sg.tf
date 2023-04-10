@@ -1,14 +1,14 @@
 resource "aws_security_group" "k3s-master-sg" {
   name        = "k3s-master-sg"
   description = "Master Nodes SG"
-  vpc_id      = data.aws_subnet.nodes.vpc_id
+  vpc_id      = aws_vpc.dedicated-vpc.id
 
   ingress {
-    description = "ssh"
+    description = "SSH from bastion"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["${data.http.public_ip.response_body}/32"]
+    cidr_blocks = [aws_subnet.public-subnet.cidr_block]
   }
 
   ingress {
@@ -16,7 +16,7 @@ resource "aws_security_group" "k3s-master-sg" {
     from_port   = 6443
     to_port     = 6443
     protocol    = "tcp"
-    cidr_blocks = [data.aws_subnet.nodes.cidr_block]
+    cidr_blocks = [aws_subnet.private-subnet.cidr_block]
   }
 
   ingress {
@@ -24,16 +24,7 @@ resource "aws_security_group" "k3s-master-sg" {
     from_port   = 10250
     to_port     = 10250
     protocol    = "tcp"
-    cidr_blocks = [data.aws_subnet.nodes.cidr_block]
-  }
-
-  # Application ports are Optional, in case if any app needs to be accessed
-  ingress {
-    description = "Application Ports"
-    from_port   = 30007
-    to_port     = 30010
-    protocol    = "tcp"
-    cidr_blocks = ["${data.http.public_ip.response_body}/32"]
+    cidr_blocks = [aws_subnet.private-subnet.cidr_block]
   }
 
   ingress {
@@ -41,7 +32,7 @@ resource "aws_security_group" "k3s-master-sg" {
     from_port   = -1
     to_port     = -1
     protocol    = "icmp"
-    cidr_blocks = ["${data.http.public_ip.response_body}/32"]
+    cidr_blocks = [aws_subnet.public-subnet.cidr_block]
   }
 
   egress {

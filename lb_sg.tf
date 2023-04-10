@@ -1,6 +1,6 @@
-resource "aws_security_group" "k3s-worker-sg" {
-  name        = "k3s-worker-sg"
-  description = "Worker Nodes SG"
+resource "aws_security_group" "k3s-lb-sg" {
+  name        = "k3s-lb-sg"
+  description = "HAproxy LB Node SG"
   vpc_id      = aws_vpc.dedicated-vpc.id
 
   ingress {
@@ -11,11 +11,18 @@ resource "aws_security_group" "k3s-worker-sg" {
     cidr_blocks = [aws_subnet.public-subnet.cidr_block]
   }
 
-  # Application ports are Optional, in case if any app needs to be accessed
   ingress {
-    description = "Application Ports"
-    from_port   = 30007
-    to_port     = 30010
+    description = "Kube-API Server"
+    from_port   = 6443
+    to_port     = 6443
+    protocol    = "tcp"
+    cidr_blocks = [aws_subnet.private-subnet.cidr_block]
+  }
+
+  ingress {
+    description = "Kube-API Server"
+    from_port   = 6443
+    to_port     = 6443
     protocol    = "tcp"
     cidr_blocks = [aws_subnet.public-subnet.cidr_block]
   }
@@ -25,7 +32,7 @@ resource "aws_security_group" "k3s-worker-sg" {
     from_port   = -1
     to_port     = -1
     protocol    = "icmp"
-    cidr_blocks = [aws_subnet.public-subnet.cidr_block]
+    cidr_blocks = [aws_subnet.private-subnet.cidr_block]
   }
 
   egress {
