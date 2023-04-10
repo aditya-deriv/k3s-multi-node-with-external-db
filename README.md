@@ -80,6 +80,7 @@ kubectl cluster-info
 kubectl create deploy nginx --image=nginx --replicas=6
 kubectl get pods -o wide
 ```
+> Note: Since all of the k3s cluster nodes (except bastion) are deployed inside private subnet, they can only be accessed from bastion host. The necessary security group rule to allow the SSH from bastion to all nodes has already been added
 
 ## Destroy the setup:
 > **Warning**
