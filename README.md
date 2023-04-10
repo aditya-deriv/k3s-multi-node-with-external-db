@@ -1,4 +1,4 @@
-# k3s-multi-node-cluster-with-external-db
+# k3s multi-node cluster setup with DB as external node
 
 ## Overview:
 This repo contains the terraform configuration to setup k3s cluster with below nodes:
