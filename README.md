@@ -22,7 +22,7 @@ This setup configures the cluster in a following manner:
 - Deploy the bastion host in public subnet
 - Deploy rest of the k3s nodes in private subnet (so they all can only be accesses from bastion host)
 - Setup the entire cluster
-- Copy the kubeconfig file from master node to bastion host (so you can directly login to bastion host and access the cluster from there)
+- Copy the kubeconfig file from master node to bastion host (so the cluster can be accessed directly from bastion host and there should not be any need of accessing any of the nodes directly)
 
 ## Steps to deploy & setup:
 - Configure AWS credentials using following command:
