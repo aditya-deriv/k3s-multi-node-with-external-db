@@ -106,5 +106,6 @@ At last, this setup is not perfect and there is a lot of room for further improv
 - Cluster external traffik
 - Replace ETCD with more robust DB (PostgreSQL for e.g.!)
 - Replace HAproxy with any other load balancer (Nginx for e.g.!)
+
 Please feel free to add more if you can think of any !
 
