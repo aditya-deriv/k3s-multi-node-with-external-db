@@ -24,11 +24,3 @@ data "aws_ami" "debian_amd64" {
 data "http" "public_ip" {
   url = "https://ifconfig.me/ip"
 }
-
-# Find the subnet
-data "aws_subnet" "nodes" {
-  filter {
-    name   = "cidr-block"
-    values = [var.subnet_cidr]
-  }
-}
