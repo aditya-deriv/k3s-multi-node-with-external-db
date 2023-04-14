@@ -6,7 +6,7 @@ module "database" {
   private_subnet_cidr_block = module.networking.private_subnet_cidr_block
   private_subnet_id         = module.networking.private_subnet_id
   ami_id                    = data.aws_ami.debian_amd64.id
-  key_name                  = "k3s-nodes-key"
+  key_name                  = aws_key_pair.nodes_key_pair.key_name
 
   depends_on = [
     data.aws_ami.debian_amd64,
@@ -23,7 +23,7 @@ module "master" {
   private_subnet_id         = module.networking.private_subnet_id
   k3s_db_private_ip         = module.database.k3s-db_private_ip
   ami_id                    = data.aws_ami.debian_amd64.id
-  key_name                  = "k3s-nodes-key"
+  key_name                  = aws_key_pair.nodes_key_pair.key_name
   k3s_master_nodes_token    = random_uuid.master_node_token.result
 
   depends_on = [
@@ -41,7 +41,7 @@ module "load-balancer" {
   k3s_master_1_private_ip   = module.master.k3s-master-1_private_ip
   k3s_master_2_private_ip   = module.master.k3s-master-2_private_ip
   ami_id                    = data.aws_ami.debian_amd64.id
-  key_name                  = "k3s-nodes-key"
+  key_name                  = aws_key_pair.nodes_key_pair.key_name
 
   depends_on = [
     module.master
@@ -56,7 +56,7 @@ module "worker" {
   private_subnet_id        = module.networking.private_subnet_id
   k3s_lb_private_ip        = module.load-balancer.k3s-lb_private_ip
   ami_id                   = data.aws_ami.debian_amd64.id
-  key_name                 = "k3s-nodes-key"
+  key_name                 = aws_key_pair.nodes_key_pair.key_name
   k3s_master_nodes_token   = random_uuid.master_node_token.result
 
   depends_on = [
@@ -82,7 +82,7 @@ module "bastion" {
   k3s_lb_private_ip       = module.load-balancer.k3s-lb_private_ip
   k3s_db_private_ip       = module.database.k3s-db_private_ip
   ami_id                  = data.aws_ami.debian_amd64.id
-  key_name                = "k3s-nodes-key"
+  key_name                = aws_key_pair.nodes_key_pair.key_name
 
   depends_on = [
     module.worker
