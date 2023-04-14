@@ -93,3 +93,23 @@ resource "aws_route_table_association" "private_route_table_association" {
   subnet_id      = aws_subnet.private-subnet.id
   route_table_id = aws_route_table.private-route.id
 }
+
+output "vpc_id" {
+  value = aws_vpc.dedicated-vpc.id
+}
+
+output "public_subnet_cidr_block" {
+  value = aws_subnet.public-subnet.cidr_block
+}
+
+output "public_subnet_id" {
+  value = aws_subnet.public-subnet.id
+}
+
+output "private_subnet_cidr_block" {
+  value = aws_subnet.private-subnet.cidr_block
+}
+
+output "private_subnet_id" {
+  value = aws_subnet.private-subnet.id
+}

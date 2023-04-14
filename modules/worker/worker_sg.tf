@@ -1,14 +1,17 @@
+variable "vpc_id" {}
+variable "public_subnet_cidr_block" {}
+
 resource "aws_security_group" "k3s-worker-sg" {
   name        = "k3s-worker-sg"
   description = "Worker Nodes SG"
-  vpc_id      = aws_vpc.dedicated-vpc.id
+  vpc_id      = var.vpc_id
 
   ingress {
     description = "SSH from bastion"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [aws_subnet.public-subnet.cidr_block]
+    cidr_blocks = [var.public_subnet_cidr_block]
   }
 
   # Application ports are Optional, in case if any app needs to be accessed
@@ -17,7 +20,7 @@ resource "aws_security_group" "k3s-worker-sg" {
     from_port   = 30007
     to_port     = 30010
     protocol    = "tcp"
-    cidr_blocks = [aws_subnet.public-subnet.cidr_block]
+    cidr_blocks = [var.public_subnet_cidr_block]
   }
 
   ingress {
@@ -25,7 +28,7 @@ resource "aws_security_group" "k3s-worker-sg" {
     from_port   = -1
     to_port     = -1
     protocol    = "icmp"
-    cidr_blocks = [aws_subnet.public-subnet.cidr_block]
+    cidr_blocks = [var.public_subnet_cidr_block]
   }
 
   egress {
