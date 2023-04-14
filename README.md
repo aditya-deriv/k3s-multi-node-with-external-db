@@ -38,7 +38,7 @@ cd k3s-multi-node-with-external-db/
 ```
 ssh-keygen -t rsa -b 4096
 ```
-- Update the public key inside `key.tf` file under `public_key` value
+- Update the public key inside `misc.tf` file under `public_key` value
 - Also, please make sure private key is named as `id_rsa` and is present inside the present module directory (This is essential since this key will be used to SSH to nodes to perform configuration)
 - Initialize the TF
 ```
@@ -95,13 +95,13 @@ terraform destroy --auto-approve
 
 ## Troubleshoot
 - In the event the installation fails, please make sure the private key configured has appropriate permissions, located inside present module directory and is named as `id_rsa`
-- Also, please make sure the public key used in `key.tf` file is exactly the one associated with the private key
+- Also, please make sure the public key used in `misc.tf` file is exactly the one associated with the private key
 - In case if there are any issues with the cluster, you can SSH to any of the k3s nodes from bastion host and check the respective services status as well as logs (cloud-init-output.log or service logs)
 
 ## What next?
 At last, this setup is not perfect and there is a lot of room for further improvements. Listing out few of them as follows:
 - Cluster scalability
-- Appropriate Modules hierarchy & simplification
+- ~~Appropriate Modules hierarchy & simplification~~
 - SSL implementation (cluster wide)
 - DB High availability implementation
 - Cluster external traffik

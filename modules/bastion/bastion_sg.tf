@@ -1,14 +1,17 @@
+variable "vpc_id" {}
+variable "public_ip" {}
+
 resource "aws_security_group" "k3s-bastion-sg" {
   name        = "k3s-bastion-sg"
   description = "Bastion Node SG"
-  vpc_id      = aws_vpc.dedicated-vpc.id
+  vpc_id      = var.vpc_id
 
   ingress {
     description = "SSH from public IP"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["${data.http.public_ip.response_body}/32"]
+    cidr_blocks = ["${var.public_ip}/32"]
   }
 
   # Application ports are Optional, in case if any app needs to be accessed
@@ -17,7 +20,7 @@ resource "aws_security_group" "k3s-bastion-sg" {
     from_port   = 30007
     to_port     = 30010
     protocol    = "tcp"
-    cidr_blocks = ["${data.http.public_ip.response_body}/32"]
+    cidr_blocks = ["${var.public_ip}/32"]
   }
 
   ingress {
@@ -25,7 +28,7 @@ resource "aws_security_group" "k3s-bastion-sg" {
     from_port   = -1
     to_port     = -1
     protocol    = "icmp"
-    cidr_blocks = ["${data.http.public_ip.response_body}/32"]
+    cidr_blocks = ["${var.public_ip}/32"]
   }
 
   egress {

@@ -1,14 +1,18 @@
-resource "aws_security_group" "k3s-lb-sg" {
-  name        = "k3s-lb-sg"
-  description = "HAproxy LB Node SG"
-  vpc_id      = aws_vpc.dedicated-vpc.id
+variable "vpc_id" {}
+variable "public_subnet_cidr_block" {}
+variable "private_subnet_cidr_block" {}
+
+resource "aws_security_group" "k3s-master-sg" {
+  name        = "k3s-master-sg"
+  description = "Master Nodes SG"
+  vpc_id      = var.vpc_id
 
   ingress {
     description = "SSH from bastion"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [aws_subnet.public-subnet.cidr_block]
+    cidr_blocks = [var.public_subnet_cidr_block]
   }
 
   ingress {
@@ -16,15 +20,15 @@ resource "aws_security_group" "k3s-lb-sg" {
     from_port   = 6443
     to_port     = 6443
     protocol    = "tcp"
-    cidr_blocks = [aws_subnet.private-subnet.cidr_block]
+    cidr_blocks = [var.private_subnet_cidr_block]
   }
 
   ingress {
-    description = "Kube-API Server"
-    from_port   = 6443
-    to_port     = 6443
+    description = "Kubelet"
+    from_port   = 10250
+    to_port     = 10250
     protocol    = "tcp"
-    cidr_blocks = [aws_subnet.public-subnet.cidr_block]
+    cidr_blocks = [var.private_subnet_cidr_block]
   }
 
   ingress {
@@ -32,7 +36,7 @@ resource "aws_security_group" "k3s-lb-sg" {
     from_port   = -1
     to_port     = -1
     protocol    = "icmp"
-    cidr_blocks = [aws_subnet.private-subnet.cidr_block]
+    cidr_blocks = [var.public_subnet_cidr_block]
   }
 
   egress {
