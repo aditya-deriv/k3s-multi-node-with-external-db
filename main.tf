@@ -25,6 +25,7 @@ module "master" {
   ami_id                    = data.aws_ami.debian_amd64.id
   key_name                  = aws_key_pair.nodes_key_pair.key_name
   k3s_master_nodes_token    = random_uuid.master_node_token.result
+  master_count              = 5
 
   depends_on = [
     module.database
@@ -38,8 +39,7 @@ module "load-balancer" {
   public_subnet_cidr_block  = module.networking.public_subnet_cidr_block
   private_subnet_cidr_block = module.networking.private_subnet_cidr_block
   private_subnet_id         = module.networking.private_subnet_id
-  k3s_master_1_private_ip   = module.master.k3s-master-1_private_ip
-  k3s_master_2_private_ip   = module.master.k3s-master-2_private_ip
+  k3s_master_private_ip     = module.master.k3s-master_private_ip
   ami_id                    = data.aws_ami.debian_amd64.id
   key_name                  = aws_key_pair.nodes_key_pair.key_name
 
@@ -58,6 +58,7 @@ module "worker" {
   ami_id                   = data.aws_ami.debian_amd64.id
   key_name                 = aws_key_pair.nodes_key_pair.key_name
   k3s_master_nodes_token   = random_uuid.master_node_token.result
+  worker_count             = 3
 
   depends_on = [
     module.load-balancer
@@ -72,17 +73,15 @@ module "networking" {
 module "bastion" {
   source = "./modules/bastion"
 
-  vpc_id                  = module.networking.vpc_id
-  public_ip               = data.http.public_ip.response_body
-  public_subnet_id        = module.networking.public_subnet_id
-  k3s_master_1_private_ip = module.master.k3s-master-1_private_ip
-  k3s_master_2_private_ip = module.master.k3s-master-2_private_ip
-  k3s_worker_1_private_ip = module.worker.k3s-worker-1_private_ip
-  k3s_worker_2_private_ip = module.worker.k3s-worker-2_private_ip
-  k3s_lb_private_ip       = module.load-balancer.k3s-lb_private_ip
-  k3s_db_private_ip       = module.database.k3s-db_private_ip
-  ami_id                  = data.aws_ami.debian_amd64.id
-  key_name                = aws_key_pair.nodes_key_pair.key_name
+  vpc_id                = module.networking.vpc_id
+  public_ip             = data.http.public_ip.response_body
+  public_subnet_id      = module.networking.public_subnet_id
+  k3s_master_private_ip = module.master.k3s-master_private_ip
+  k3s_worker_private_ip = module.worker.k3s-worker_private_ip
+  k3s_lb_private_ip     = module.load-balancer.k3s-lb_private_ip
+  k3s_db_private_ip     = module.database.k3s-db_private_ip
+  ami_id                = data.aws_ami.debian_amd64.id
+  key_name              = aws_key_pair.nodes_key_pair.key_name
 
   depends_on = [
     module.worker
@@ -94,24 +93,14 @@ output "k3s_db_private_ip" {
   value       = module.database.k3s-db_private_ip
 }
 
-output "k3s_master_1_private_ip" {
-  description = "Master-1 Private IP"
-  value       = module.master.k3s-master-1_private_ip
+output "k3s_master_private_ip" {
+  description = "Master nodes Private IPs"
+  value       = module.master.k3s-master_private_ip
 }
 
-output "k3s_master_2_private_ip" {
-  description = "Master-2 Private IP"
-  value       = module.master.k3s-master-2_private_ip
-}
-
-output "k3s_worker_1_private_ip" {
-  description = "Worker-1 Private IP"
-  value       = module.worker.k3s-worker-1_private_ip
-}
-
-output "k3s_worker_2_private_ip" {
-  description = "Worker-2 Private IP"
-  value       = module.worker.k3s-worker-2_private_ip
+output "k3s_worker_private_ip" {
+  description = "Worker nodes Private IPs"
+  value       = module.worker.k3s-worker_private_ip
 }
 
 output "k3s_lb_private_ip" {

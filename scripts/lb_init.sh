@@ -26,18 +26,23 @@ frontend k3s-load-balancer
    stats uri /haproxy?stats
    default_backend k3s-master-nodes
 
-backend k3s-master-nodes
-    balance roundrobin
-    server k3s-master-1 ${k3s_master_1_private_ip}:6443
-    server k3s-master-2 ${k3s_master_2_private_ip}:6443
-
 listen stats
    bind *:6443
    stats enable
    stats uri /
    stats refresh 5s
    stats realm Haproxy\ Statistics
+
+backend k3s-master-nodes
+    balance roundrobin
 EOT
+
+master_nodes=(${k3s_master_private_ip})
+for master in $${master_nodes[@]}; do
+sudo tee -a /etc/haproxy/haproxy.cfg > /dev/null <<EOT
+    server $master $master:6443
+EOT
+done
 
 # Restart HAproxy and enable it for reboot
 sudo systemctl restart haproxy.service

@@ -14,15 +14,26 @@ EOT
 sudo apt-get update > /dev/null && sudo apt-get install -y git curl telnet > /dev/null
 
 # Add Entries in /etc/hosts
+
 sudo tee -a /etc/hosts > /dev/null <<EOT
-${k3s_master_1_private_ip} k3s-master-1
-${k3s_master_2_private_ip} k3s-master-2
-${k3s_worker_1_private_ip} k3s-worker-1
-${k3s_worker_2_private_ip} k3s-worker-2
 ${k3s_lb_private_ip}       k3s-lb
 ${k3s_db_private_ip}       k3s-db
 ${k3s_bastion_private_ip}  k3s-bastion
 EOT
+
+master_nodes=(${k3s_master_private_ip})
+for master in $${master_nodes[@]}; do
+sudo tee -a /etc/hosts > /dev/null <<EOT
+$master k3s-master
+EOT
+done
+
+worker_nodes=(${k3s_worker_private_ip})
+for worker in $${worker_nodes[@]}; do
+sudo tee -a /etc/hosts > /dev/null <<EOT
+$worker k3s-worker
+EOT
+done
 
 # Install and setup kubectl utility
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"

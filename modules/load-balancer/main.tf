@@ -1,6 +1,5 @@
 variable "private_subnet_id" {}
-variable "k3s_master_1_private_ip" {}
-variable "k3s_master_2_private_ip" {}
+variable "k3s_master_private_ip" {}
 variable "ami_id" {}
 variable "key_name" {}
 
@@ -21,8 +20,7 @@ data "template_file" "lb_user_data" {
   template = file("scripts/lb_init.sh")
 
   vars = {
-    k3s_master_1_private_ip = var.k3s_master_1_private_ip,
-    k3s_master_2_private_ip = var.k3s_master_2_private_ip
+    k3s_master_private_ip = join(" ", var.k3s_master_private_ip),
   }
 }
 

@@ -1,7 +1,5 @@
-variable "k3s_master_1_private_ip" {}
-variable "k3s_master_2_private_ip" {}
-variable "k3s_worker_1_private_ip" {}
-variable "k3s_worker_2_private_ip" {}
+variable "k3s_master_private_ip" {}
+variable "k3s_worker_private_ip" {}
 variable "k3s_lb_private_ip" {}
 variable "k3s_db_private_ip" {}
 
@@ -22,12 +20,11 @@ resource "null_resource" "k3s_bastion" {
   # Provision the script using the template
   provisioner "file" {
     content = templatefile("scripts/bastion_init.sh", {
-      k3s_master_1_private_ip = var.k3s_master_1_private_ip,
-      k3s_master_2_private_ip = var.k3s_master_2_private_ip,
-      k3s_worker_1_private_ip = var.k3s_worker_1_private_ip,
-      k3s_worker_2_private_ip = var.k3s_worker_2_private_ip,
+      k3s_master_private_ip   = join(" ", var.k3s_master_private_ip),
+      k3s_worker_private_ip   = join(" ", var.k3s_worker_private_ip),
       k3s_lb_private_ip       = var.k3s_lb_private_ip,
       k3s_db_private_ip       = var.k3s_db_private_ip,
+      k3s_master_1_private_ip = element(var.k3s_master_private_ip, 0),
       k3s_bastion_private_ip  = aws_instance.k3s-bastion.private_ip
     })
     destination = "/home/admin/bastion_init.sh"
