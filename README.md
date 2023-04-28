@@ -2,8 +2,8 @@
 
 ## Overview:
 This repo contains the terraform configuration to setup k3s cluster with below nodes:
-- k3s master nodes (No. of nodes(s): 2)
-- k3s worker nodes (No. of nodes(s): 2)
+- k3s master nodes (Default nodes(s): 3) [Scalable]
+- k3s worker nodes (Default nodes(s): 2) [Scalable]
 - k3s ETCD as external DB node (No. of nodes(s): 1)
 - k3s HAproxy load balancer node (No. of nodes(s): 1)
 - k3s Bastion node (No. of nodes(s): 1)
