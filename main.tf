@@ -25,7 +25,7 @@ module "master" {
   ami_id                    = data.aws_ami.debian_amd64.id
   key_name                  = aws_key_pair.nodes_key_pair.key_name
   k3s_master_nodes_token    = random_uuid.master_node_token.result
-  master_count              = 5
+  master_count              = 3
 
   depends_on = [
     module.database
@@ -58,7 +58,7 @@ module "worker" {
   ami_id                   = data.aws_ami.debian_amd64.id
   key_name                 = aws_key_pair.nodes_key_pair.key_name
   k3s_master_nodes_token   = random_uuid.master_node_token.result
-  worker_count             = 3
+  worker_count             = 2
 
   depends_on = [
     module.load-balancer
